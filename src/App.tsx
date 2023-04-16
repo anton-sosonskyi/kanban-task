@@ -1,5 +1,5 @@
-import { DndContext } from '@dnd-kit/core';
-import { Breadcrumb, Row, Col, Layout, List } from 'antd';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, closestCorners } from '@dnd-kit/core';
+import { Breadcrumb, Row, Col, Layout } from 'antd';
 import { Content, Header } from 'antd/es/layout/layout';
 import { CustomInput } from './components/CustomInput';
 import { useCallback, useEffect, useState } from 'react';
@@ -7,15 +7,23 @@ import { getRepoName, prepareBoard } from './utils/helpers';
 import * as repoActions from './features/repo/repoSlice';
 import * as boardActions from './features/board/boardSlice';
 import { useAppDispatch, useAppSelector } from './hooks/useApp';
+import { Column } from './components/Column';
 import { IssueCard } from './components/IssueCard';
+import { Issue } from './types/Issue';
 
 function App() {
   const [currentRepoURL, setCurrentRepoURL] = useState('');
+  const [activeId, setActiveId] = useState('');
   const { issues } = useAppSelector(state => state.repo);
   const { columns } = useAppSelector(state => state.board);
   const dispatch = useAppDispatch();
 
   const handleURLChange = useCallback(setCurrentRepoURL, []);
+
+  const getActiveId = (id: string, cards: Issue[]) => {
+    const activeIssue = cards.find(card => card.id === +id);
+    return activeIssue;
+  }
 
   useEffect(() => {
     if (!currentRepoURL) {
@@ -40,6 +48,32 @@ function App() {
     // }
 
   }, [currentRepoURL, issues]);
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(String(event.active.id));
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    const activeElement = active.data.current;
+    const overElement = over?.data.current;
+    console.log(activeElement, overElement)
+    // console.log(active, over)
+
+    if (!over) {
+      return;
+    }
+
+    dispatch(boardActions.reoder(
+      {
+        source: activeElement?.parent,
+        destination: overElement?.parent,
+        sourceIndex: activeElement?.index,
+        destinationIndex: overElement?.index,
+      }
+    ));
+    setActiveId('');
+  };
 
   return (
     <Layout>
@@ -70,48 +104,33 @@ function App() {
           ]}
         />
 
-        <DndContext onDragEnd={(e) => console.log(e)}>
-          <Row gutter={[16, 16]}>
-            <Col span={8}>
-
-              <List
-                bordered
-                header={"Todo"}
-                dataSource={columns.todo}
-                renderItem={(item) => (
-                  <List.Item>
-                    <IssueCard issue={item} />
-                  </List.Item>
-                )}
-              />
+        <DndContext
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <Row gutter={[16, 16]} justify="center">
+            <Col span={6}>
+              <Column items={columns.todo} header="ToDo" colName="todo" />
             </Col>
 
-            <Col span={8}>
-              <List
-                bordered
-                header={"In Progress"}
-                dataSource={columns.inProgress}
-                renderItem={(item) => (
-                  <List.Item>
-                    <IssueCard issue={item} />
-                  </List.Item>
-                )}
-              />
+            <Col span={6}>
+              <Column items={columns.inProgress} header="In Progress" colName="inProgress" />
             </Col>
 
-            <Col span={8}>
-              <List
-                bordered
-                header={"Done"}
-                dataSource={columns.done}
-                renderItem={(item) => (
-                  <List.Item>
-                    <IssueCard issue={item} />
-                  </List.Item>
-                )}
-              />
+            <Col span={6}>
+              <Column items={columns.done} header="Done" colName="done" />
             </Col>
           </Row>
+
+          <DragOverlay
+            dropAnimation={{
+              duration: 500,
+              easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+            }}
+          >
+            {activeId ? <IssueCard issue={getActiveId(activeId, issues) as Issue} /> : null}
+          </DragOverlay>
         </DndContext>
       </Content>
     </Layout>

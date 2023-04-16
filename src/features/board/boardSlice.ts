@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { Issue } from "../../types/Issue";
+import { Columns } from "../../enums/Columns";
 
 type BoardState = {
   name: string;
@@ -19,22 +20,23 @@ const initialState: BoardState = {
   }
 }
 
-// const init = createAsyncThunk('board/init', async (issues: Issue[]) => {
-
-// })
-
 const boardSlice = createSlice({
   name: 'board',
   initialState,
   reducers: {
     initBoard: (state, action: PayloadAction<BoardState>) => {
-      console.log(action.payload.columns)
       state.name = action.payload.name;
       state.columns = action.payload.columns;
-    }
+    },
+
+    reoder: (state, action: PayloadAction<{source: string, destination: string, sourceIndex: number, destinationIndex: number}>) => {
+      const { source, destination, sourceIndex, destinationIndex} = action.payload;
+      const itemToMove = state.columns[source as Columns].splice(sourceIndex, 1)[0];
+      state.columns[destination as Columns].splice(destinationIndex, 0, itemToMove);
+    },
   }
 });
 
-export const { initBoard } = boardSlice.actions;
+export const { initBoard, reoder } = boardSlice.actions;
 
 export default boardSlice.reducer;

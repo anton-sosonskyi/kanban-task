@@ -1,14 +1,15 @@
 import React from 'react';
 import { Issue } from '../../types/Issue';
 import { Card } from 'antd';
-import './card.scss';
 import { getDaysPass } from '../../utils/helpers';
+import './card.scss';
 
 type Props = {
   issue: Issue;
 };
 
 export const IssueCard: React.FC<Props> = ({ issue }) => {
+
   const daysPass = getDaysPass(issue.created_at);
 
   return (
@@ -22,7 +23,7 @@ export const IssueCard: React.FC<Props> = ({ issue }) => {
       </span>
 
       <span className="card__text">
-        {`${issue.user} | Comments ${issue.comments} `}
+        {`${issue.user} | Comments ${issue.comments}`}
       </span>
     </Card>
   );

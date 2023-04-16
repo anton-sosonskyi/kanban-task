@@ -1,0 +1,19 @@
+.column {
+
+  &__title {
+    text-align: center;
+  }
+
+  &__list {
+    padding: 16px 0;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    background-color: #a9adaf;
+    border: 1px solid black;
+    list-style: none;
+  }
+}
