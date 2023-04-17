@@ -2,33 +2,55 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getIssues } from "../../api/issues";
 import { Issue } from "../../types/Issue";
 import { getRepoName } from "../../utils/helpers";
+import { getRepoInfo } from "../../api/repoInfo";
 
 type RepoState = {
   isError: boolean;
   issues: Issue[];
-  ownerURL: string;
+  starsCount: number;
   repoURL: string;
-  loaded: boolean
+  loaded: boolean;
+  isLoading: boolean;
 }
 
 export const loadIssues = createAsyncThunk('repo/fetch', async (url: string) => {
   const repoFullName = getRepoName(url);
-  const data = await getIssues(repoFullName);
 
-  const issues = data.map((item) => {
-    const { id, title, number, user, comments, state, assigne, created_at } = item;
-    return { id, title, number, user: user.type, comments, state, assigne, created_at };
+  const [repoInfo, issuesFromServer] = await Promise.all([getRepoInfo(repoFullName), getIssues(repoFullName)]);
+
+  const issues: Issue[] = issuesFromServer.map(({ id,
+    title,
+    number,
+    user,
+    comments,
+    state,
+    assigne,
+    created_at,
+  }) => {
+    return {
+      id,
+      title,
+      number,
+      user: user.type,
+      comments, state,
+      assigne, created_at,
+    };
   });
 
-  return issues;
+  return {
+    issues,
+    starsCount: repoInfo.stargazers_count,
+    repoURL: repoInfo.html_url,
+  };
 });
 
 const initialState: RepoState = {
   issues: [],
-  ownerURL: '',
+  starsCount: 0,
   repoURL: '',
   isError: false,
   loaded: false,
+  isLoading: false,
 };
 
 const repoSlice = createSlice({
@@ -39,17 +61,22 @@ const repoSlice = createSlice({
     builder.addCase(loadIssues.pending, (state) => {
       state.loaded = false;
       state.isError = false;
+      state.isLoading = true;
     });
 
     builder.addCase(loadIssues.fulfilled, (state, action) => {
       state.loaded = true;
       state.isError = false;
-      state.issues = action.payload;
+      state.isLoading = false;
+      state.issues = action.payload.issues;
+      state.starsCount = action.payload.starsCount;
+      state.repoURL = action.payload.repoURL;
     });
 
     builder.addCase(loadIssues.rejected, (state) => {
       state.loaded = true;
       state.isError = true;
+      state.isLoading = false;
     });
   },
 });

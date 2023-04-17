@@ -1,4 +1,4 @@
-import { Input } from 'antd';
+import { Alert, Input } from 'antd';
 import { useInput } from '../../hooks/useInput';
 const { Search } = Input;
 
@@ -7,21 +7,33 @@ type Props = {
 };
 
 export const CustomInput: React.FC<Props> = ({ handleURLChange }) => {
-  const { input, isError, onChange, handleSearch } = useInput('');
+  const {
+    input,
+    isError,
+    message,
+    onChange,
+    handleSearch,
+  } = useInput('');
 
   return (
-    <Search
-      style={{
-        width: '100%',
-      }}
-      allowClear
-      placeholder="Enter repo URL"
-      enterButton="Load issues"
-      size="large"
-      status={isError ? 'error' : ''}
-      value={input}
-      onChange={onChange}
-      onSearch={() => handleSearch(handleURLChange)}
-    />
+    <>
+      <Search
+        style={{
+          width: '100%',
+        }}
+        allowClear
+        placeholder="Enter repo URL"
+        enterButton="Load issues"
+        size="large"
+        status={isError ? 'error' : ''}
+        value={input}
+        onChange={onChange}
+        onSearch={() => handleSearch(handleURLChange)}
+      />
+
+      {isError && (
+        <Alert message={message} type="error" />
+      )}
+    </>
   );
 };

@@ -3,8 +3,8 @@ export type Issue = {
   title: string;
   number: number;
   state: string;
-  user: any;
+  user: {[key: string]: any};
   comments: number;
   created_at: string;
-  assigne: any;
+  assigne: string;
 }

@@ -1,29 +1,40 @@
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, closestCorners } from '@dnd-kit/core';
-import { Breadcrumb, Row, Col, Layout } from 'antd';
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  KeyboardSensor,
+  PointerSensor,
+  closestCorners,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  getActiveId,
+  getFromSessionStorage,
+  getRepoName,
+  prepareBoard,
+} from './utils/helpers';
+import { Layout, Result, Spin } from 'antd';
 import { Content, Header } from 'antd/es/layout/layout';
 import { CustomInput } from './components/CustomInput';
 import { useCallback, useEffect, useState } from 'react';
-import { getRepoName, prepareBoard } from './utils/helpers';
 import * as repoActions from './features/repo/repoSlice';
 import * as boardActions from './features/board/boardSlice';
 import { useAppDispatch, useAppSelector } from './hooks/useApp';
-import { Column } from './components/Column';
 import { IssueCard } from './components/IssueCard';
 import { Issue } from './types/Issue';
+import { Board } from './components/Board';
+import { Links } from './components/Links';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 
 function App() {
   const [currentRepoURL, setCurrentRepoURL] = useState('');
   const [activeId, setActiveId] = useState('');
-  const { issues } = useAppSelector(state => state.repo);
-  const { columns } = useAppSelector(state => state.board);
+  const { issues, loaded, isLoading, isError } = useAppSelector(state => state.repo);
   const dispatch = useAppDispatch();
 
   const handleURLChange = useCallback(setCurrentRepoURL, []);
-
-  const getActiveId = (id: string, cards: Issue[]) => {
-    const activeIssue = cards.find(card => card.id === +id);
-    return activeIssue;
-  }
 
   useEffect(() => {
     if (!currentRepoURL) {
@@ -39,13 +50,15 @@ function App() {
     }
 
     const repoName = getRepoName(currentRepoURL);
-    const boardColumns = prepareBoard(issues);
+    const savedBoard = getFromSessionStorage(repoName);
 
+    if (savedBoard) {
+      dispatch(boardActions.initBoard({ name: repoName, columns: savedBoard }));
+      return;
+    }
+
+    const boardColumns = prepareBoard(issues);
     dispatch(boardActions.initBoard({ name: repoName, columns: boardColumns }));
-    // const savedBoard = getFromSessionStorage(repoName);
-    // if (savedBoard) {
-    //   dispatch(boardActions.initBoard({name: repoName, }))
-    // }
 
   }, [currentRepoURL, issues]);
 
@@ -57,23 +70,48 @@ function App() {
     const { active, over } = event;
     const activeElement = active.data.current;
     const overElement = over?.data.current;
-    console.log(activeElement, overElement)
-    // console.log(active, over)
 
-    if (!over) {
+    if (!over || !active) {
+      return;
+    }
+    const isSameParent = overElement?.parent === activeElement?.parent;
+    const isSameIndex = activeElement?.index === overElement?.index;
+
+    if (isSameParent && isSameIndex) {
+      setActiveId('');
       return;
     }
 
-    dispatch(boardActions.reoder(
-      {
-        source: activeElement?.parent,
-        destination: overElement?.parent,
-        sourceIndex: activeElement?.index,
-        destinationIndex: overElement?.index,
-      }
-    ));
+    if (overElement?.type === "container") {
+      dispatch(boardActions.add(
+        {
+          source: activeElement?.parent,
+          destination: overElement?.name,
+          sourceIndex: activeElement?.index,
+        }
+      ));
+
+    } else {
+      dispatch(boardActions.reoder(
+        {
+          source: activeElement?.parent,
+          destination: overElement?.parent,
+          sourceIndex: activeElement?.index,
+          destinationIndex: overElement?.index,
+        }
+      ));
+    }
+
     setActiveId('');
+    dispatch(boardActions.save());
   };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates
+    })
+  );
 
   return (
     <Layout>
@@ -86,55 +124,60 @@ function App() {
         <CustomInput handleURLChange={handleURLChange} />
       </Header>
 
-      <Content >
-        <Breadcrumb
-          style={{
-            padding: 10,
-          }}
-          separator=">"
-          items={[
-            {
-              title: 'Application Center',
-              href: '',
-            },
-            {
-              title: 'Application List',
-              href: '',
-            },
-          ]}
-        />
+      <Content
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          
+        }}
+      >
+        {isLoading && (
+          <div className="container--loading">
+            <Spin />
+          </div>
+        )}
 
-        <DndContext
-          collisionDetection={closestCorners}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-        >
-          <Row gutter={[16, 16]} justify="center">
-            <Col span={6}>
-              <Column items={columns.todo} header="ToDo" colName="todo" />
-            </Col>
+        {loaded && isError && (
+          <Result
+            status="404"
+            title="404"
+            subTitle="Sorry, the repository you visited does not exist."
+          />
+        )}
 
-            <Col span={6}>
-              <Column items={columns.inProgress} header="In Progress" colName="inProgress" />
-            </Col>
+        {loaded && !isError && (
+          <>
+            <Links />
 
-            <Col span={6}>
-              <Column items={columns.done} header="Done" colName="done" />
-            </Col>
-          </Row>
+            <DndContext
+              collisionDetection={closestCorners}
+              sensors={sensors}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+            >
+              <Board />
 
-          <DragOverlay
-            dropAnimation={{
-              duration: 500,
-              easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
-            }}
-          >
-            {activeId ? <IssueCard issue={getActiveId(activeId, issues) as Issue} /> : null}
-          </DragOverlay>
-        </DndContext>
+              <DragOverlay
+                style={{
+                  cursor: "grabb",
+                }}
+                dropAnimation={{
+                  duration: 500,
+                  easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+                }}
+              >
+                {activeId
+                  ? <IssueCard issue={getActiveId(activeId, issues) as Issue} />
+                  : null
+                }
+              </DragOverlay>
+            </DndContext>
+          </>
+        )};
       </Content>
     </Layout>
   );
-};
+}
 
 export default App;

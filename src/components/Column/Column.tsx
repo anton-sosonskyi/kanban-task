@@ -1,30 +1,38 @@
 import React from 'react';
 import { Issue } from '../../types/Issue';
-import { useDroppable } from '@dnd-kit/core';
 import { IssueCard } from '../IssueCard';
-import './column.scss';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { SortableItem } from '../SortableItem';
+import './column.scss';
 
 type Props = {
   header: string;
-  colName: string;
+  id: string;
   items: Issue[];
 };
 
-export const Column: React.FC<Props> = ({ header, colName, items }) => {
-  const { setNodeRef } = useDroppable({
-    id: colName,
+export const Column: React.FC<Props> = ({ header, id, items }) => {
+  const { setNodeRef } = useSortable({
+    id,
+    data: {
+      type: "container",
+      children: items,
+      name: id,
+    },
   });
 
   return (
-    <div className="column">
+    <div className="column" >
       <h2 className="column__title">
         {header}
       </h2>
 
       <SortableContext
-        id={colName}
+        id={id}
         items={items}
         strategy={verticalListSortingStrategy}
       >
@@ -33,7 +41,7 @@ export const Column: React.FC<Props> = ({ header, colName, items }) => {
           ref={setNodeRef}
         >
           {items.map((item, index) => (
-            <SortableItem key={item.id} id={item.id} index={index} parent={colName}>
+            <SortableItem key={item.id} id={item.id} index={index} parent={id}>
               <IssueCard issue={item} />
             </SortableItem>
           ))}

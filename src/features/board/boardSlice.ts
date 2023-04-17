@@ -1,6 +1,7 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { Issue } from "../../types/Issue";
 import { Columns } from "../../enums/Columns";
+import { saveToSessionStorage } from "../../utils/helpers";
 
 type BoardState = {
   name: string;
@@ -9,6 +10,19 @@ type BoardState = {
     inProgress: Issue[];
     done: Issue[];
   }
+}
+
+type ReoderAction = {
+  source: string,
+  destination: string,
+  sourceIndex: number,
+  destinationIndex: number,
+}
+
+type AddAction = {
+  source: string,
+  destination: string,
+  sourceIndex: number,
 }
 
 const initialState: BoardState = {
@@ -29,14 +43,24 @@ const boardSlice = createSlice({
       state.columns = action.payload.columns;
     },
 
-    reoder: (state, action: PayloadAction<{source: string, destination: string, sourceIndex: number, destinationIndex: number}>) => {
-      const { source, destination, sourceIndex, destinationIndex} = action.payload;
+    reoder: (state, action: PayloadAction<ReoderAction>) => {
+      const { source, destination, sourceIndex, destinationIndex } = action.payload;
       const itemToMove = state.columns[source as Columns].splice(sourceIndex, 1)[0];
       state.columns[destination as Columns].splice(destinationIndex, 0, itemToMove);
+    },
+
+    add: (state, action: PayloadAction<AddAction>) => {
+      const { source, destination, sourceIndex } = action.payload;
+      const itemToMove = state.columns[source as Columns].splice(sourceIndex, 1)[0];
+      state.columns[destination as Columns].push(itemToMove);
+    },
+
+    save: (state) => {
+      saveToSessionStorage(state.name, state.columns);
     },
   }
 });
 
-export const { initBoard, reoder } = boardSlice.actions;
+export const { initBoard, reoder, add, save } = boardSlice.actions;
 
 export default boardSlice.reducer;

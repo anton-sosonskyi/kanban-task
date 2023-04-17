@@ -1,3 +1,4 @@
+
 const token = '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';
 const BASE_URL = 'https://api.github.com/repos/';
 
@@ -11,7 +12,7 @@ export function request<T>(
     method,
     headers: {
       'Accept': 'application/vnd.github.v3+json',
-      'Authorization': `token ${token}`,
+      'Authorization': `token ${import.meta.env.VITE_API_TOKEN}`,
     }
   };
   return fetch(BASE_URL + url, options)
@@ -22,7 +23,7 @@ export function request<T>(
 
       return response.json();
     });
-};
+}
 
 export const client = {
   get: <T>(url: string) => request<T>(url),

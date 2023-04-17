@@ -1,0 +1,22 @@
+.links {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  &__stars {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    &-icon {
+      width: 16px;
+      height: 16px;
+      background-image: url('../../assets/star-active.svg');
+      background-size: cover;
+    }
+
+    &-count {
+      display: block;
+    }
+  }
+}

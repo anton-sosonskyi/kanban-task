@@ -8,22 +8,29 @@ type Props = {
   issue: Issue;
 };
 
-export const IssueCard: React.FC<Props> = ({ issue }) => {
-
-  const daysPass = getDaysPass(issue.created_at);
+export const IssueCard: React.FC<Props> = ({
+  issue: {
+    created_at,
+    title,
+    number,
+    user,
+    comments,
+  },
+ }) => {
+  const daysPass = getDaysPass(created_at);
 
   return (
     <Card className="card">
       <h3 className="card__title">
-        {issue.title}
+        {title}
       </h3>
 
       <span className="card__text">
-        {`#${issue.number} opened ${daysPass} days ago`}
+        {`#${number} opened ${daysPass} days ago`}
       </span>
 
       <span className="card__text">
-        {`${issue.user} | Comments ${issue.comments}`}
+        {`${user} | Comments ${comments}`}
       </span>
     </Card>
   );

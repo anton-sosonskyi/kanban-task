@@ -1,8 +1,9 @@
 import { Issue } from "../types/Issue";
 
-export const getRepoLinks = (url: string) => {
-
-};
+export const getActiveId = (id: string, cards: Issue[]) => {
+  const activeIssue = cards.find(card => card.id === +id);
+  return activeIssue;
+}
 
 export const getRepoName = (url: string) => {
   const index = url.search(/(\/)\w+(\/)\w+/g) + 1;

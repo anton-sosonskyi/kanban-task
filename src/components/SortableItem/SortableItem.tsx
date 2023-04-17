@@ -10,7 +10,13 @@ type Props = {
 }
 
 export const SortableItem: React.FC<Props> = ({ id, parent, index, children }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({
     id: String(id),
     data: {
       index,
@@ -19,6 +25,7 @@ export const SortableItem: React.FC<Props> = ({ id, parent, index, children }) =
   });
 
   const style = {
+    cursor: "grab",
     transform: CSS.Transform.toString(transform),
     transition
   };
