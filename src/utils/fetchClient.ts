@@ -1,5 +1,5 @@
 
-const token = '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';
+const token = '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';
 const BASE_URL = 'https://api.github.com/repos/';
 
 type RequestMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
