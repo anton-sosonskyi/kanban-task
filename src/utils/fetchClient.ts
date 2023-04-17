@@ -12,7 +12,7 @@ export function request<T>(
     method,
     headers: {
       'Accept': 'application/vnd.github.v3+json',
-      'Authorization': `token ${import.meta.env.VITE_API_TOKEN}`,
+      'Authorization': `token ${token}`,
     }
   };
   return fetch(BASE_URL + url, options)
