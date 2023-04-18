@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getIssues } from "../../api/issues";
 import { Issue } from "../../types/Issue";
-import { getRepoName } from "../../utils/helpers";
+import { getRepoName, normalizeIssues } from "../../utils/helpers";
 import { getRepoInfo } from "../../api/repoInfo";
 
 type RepoState = {
@@ -15,34 +15,12 @@ type RepoState = {
 
 export const loadRepoData = createAsyncThunk('repo/fetch', async (url: string) => {
   const repoFullName = getRepoName(url);
-
   const [repoInfo, issuesFromServer] = await Promise.all([getRepoInfo(repoFullName), getIssues(repoFullName)]);
 
-  const issues: Issue[] = issuesFromServer.map(({ id,
-    title,
-    number,
-    user,
-    comments,
-    state,
-    assignee,
-    created_at,
-  }: Issue) => {
-    return {
-      id,
-      title,
-      number,
-      user: user.type,
-      comments,
-      state,
-      assignee: assignee.login,
-      created_at,
-    };
-  });
-
   return {
-    issues,
     starsCount: repoInfo.stargazers_count,
     repoURL: repoInfo.html_url,
+    issues: issuesFromServer,
   };
 });
 
@@ -70,12 +48,13 @@ const repoSlice = createSlice({
       state.loaded = true;
       state.isError = false;
       state.isLoading = false;
-      state.issues = action.payload.issues;
+      state.issues = normalizeIssues(action.payload.issues);
       state.starsCount = action.payload.starsCount;
       state.repoURL = action.payload.repoURL;
     });
 
     builder.addCase(loadRepoData.rejected, (state) => {
+      console.log('erorr')
       state.loaded = true;
       state.isError = true;
       state.isLoading = false;

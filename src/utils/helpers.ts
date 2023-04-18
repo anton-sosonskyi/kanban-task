@@ -32,3 +32,29 @@ export const prepareBoard = (issues: Issue[]) => {
 
   return { todo, inProgress, done };
 };
+
+export function normalizeIssues(issues: Issue[]) {
+  const normilizedItems:Issue[] = issues.map(({ id,
+    title,
+    number,
+    user,
+    comments,
+    state,
+    assignee,
+    created_at,
+  }) => {
+
+    return {
+      id,
+      title,
+      number,
+      user: user.type,
+      comments,
+      state,
+      assignee: assignee,
+      created_at,
+    };
+  });
+
+  return normilizedItems;
+};
