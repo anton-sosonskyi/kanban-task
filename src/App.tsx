@@ -41,7 +41,7 @@ function App() {
       return;
     }
 
-    dispatch(repoActions.loadIssues(currentRepoURL));
+    dispatch(repoActions.loadRepoData(currentRepoURL));
   }, [currentRepoURL]);
 
   useEffect(() => {
@@ -129,7 +129,6 @@ function App() {
           minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
-          
         }}
       >
         {isLoading && (

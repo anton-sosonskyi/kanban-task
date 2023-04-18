@@ -9,7 +9,6 @@ export const getIssues = async (repoUrl: string) => {
     owner: repoNames[0],
     repo: repoNames[1],
     state: 'all',
-    assignee: '*',
     headers: {
       'X-GitHub-Api-Version': '2022-11-28'
     },

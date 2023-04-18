@@ -7,9 +7,6 @@ const REPOSITORY_NAME = cwd.split('\\').pop();
 export default defineConfig({
   base: `/${REPOSITORY_NAME}/`,
   plugins: [react()],
-  define: {
-    "global": {},
-  },
   resolve: {
     alias: {
       'node-fetch': 'isomorphic-fetch',

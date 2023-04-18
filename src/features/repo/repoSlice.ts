@@ -13,7 +13,7 @@ type RepoState = {
   isLoading: boolean;
 }
 
-export const loadIssues = createAsyncThunk('repo/fetch', async (url: string) => {
+export const loadRepoData = createAsyncThunk('repo/fetch', async (url: string) => {
   const repoFullName = getRepoName(url);
 
   const [repoInfo, issuesFromServer] = await Promise.all([getRepoInfo(repoFullName), getIssues(repoFullName)]);
@@ -60,13 +60,13 @@ const repoSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(loadIssues.pending, (state) => {
+    builder.addCase(loadRepoData.pending, (state) => {
       state.loaded = false;
       state.isError = false;
       state.isLoading = true;
     });
 
-    builder.addCase(loadIssues.fulfilled, (state, action) => {
+    builder.addCase(loadRepoData.fulfilled, (state, action) => {
       state.loaded = true;
       state.isError = false;
       state.isLoading = false;
@@ -75,7 +75,7 @@ const repoSlice = createSlice({
       state.repoURL = action.payload.repoURL;
     });
 
-    builder.addCase(loadIssues.rejected, (state) => {
+    builder.addCase(loadRepoData.rejected, (state) => {
       state.loaded = true;
       state.isError = true;
       state.isLoading = false;
