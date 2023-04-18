@@ -6,5 +6,5 @@ export type Issue = {
   user: {[key: string]: any};
   comments: number;
   created_at: string;
-  assigne: string;
+  assignee: {[key: string]: any};
 }

@@ -27,7 +27,7 @@ export function getFromSessionStorage(key: string) {
 
 export const prepareBoard = (issues: Issue[]) => {
   const todo = issues.filter(issue => issue.state === 'open');
-  const inProgress = issues.filter(issue => issue.state === 'open' && issue.assigne);
+  const inProgress = issues.filter(issue => issue.state === 'open' && issue.assignee);
   const done = issues.filter(issue => issue.state === 'closed');
 
   return { todo, inProgress, done };

@@ -24,16 +24,18 @@ export const loadIssues = createAsyncThunk('repo/fetch', async (url: string) => 
     user,
     comments,
     state,
-    assigne,
+    assignee,
     created_at,
-  }) => {
+  }: Issue) => {
     return {
       id,
       title,
       number,
       user: user.type,
-      comments, state,
-      assigne, created_at,
+      comments,
+      state,
+      assignee: assignee.login,
+      created_at,
     };
   });
 

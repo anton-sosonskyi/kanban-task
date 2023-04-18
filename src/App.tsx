@@ -64,7 +64,7 @@ function App() {
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(String(event.active.id));
-  }
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
