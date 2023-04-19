@@ -26,7 +26,7 @@ export function getFromSessionStorage(key: string) {
 }
 
 export const prepareBoard = (issues: Issue[]) => {
-  const todo = issues.filter(issue => issue.state === 'open');
+  const todo = issues.filter(issue => issue.state === 'open' && !issue.assignee);
   const inProgress = issues.filter(issue => issue.state === 'open' && issue.assignee);
   const done = issues.filter(issue => issue.state === 'closed');
 
@@ -34,7 +34,7 @@ export const prepareBoard = (issues: Issue[]) => {
 };
 
 export function normalizeIssues(issues: Issue[]) {
-  const normilizedItems:Issue[] = issues.map(({ id,
+  const normilizedItems: Issue[] = issues.map(({ id,
     title,
     number,
     user,

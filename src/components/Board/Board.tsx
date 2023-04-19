@@ -5,6 +5,7 @@ import { Columns } from '../../enums/Columns';
 
 export const Board = () => {
   const { columns } = useAppSelector(state => state.board);
+
   return (
     <Row gutter={[16, 16]} justify="center">
       <Col span={6}>

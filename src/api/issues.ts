@@ -6,6 +6,7 @@ const octokit = new Octokit();
 
 export const getIssues = async (repoUrl: string): Promise<Issue[]> => {
   const repoNames = getRepoName(repoUrl).split('/');
+
   const serverIssues = await octokit.request(`GET /repos/${repoUrl}/issues`, {
     owner: repoNames[0],
     repo: repoNames[1],

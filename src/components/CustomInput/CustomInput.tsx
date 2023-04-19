@@ -6,7 +6,7 @@ type Props = {
   handleURLChange: React.Dispatch<React.SetStateAction<string>>;
 };
 
-export const CustomInput: React.FC<Props> = ({ handleURLChange }) => {
+export const CustomInput: React.FC<Props> = ({ handleURLChange }: Props) => {
   const {
     input,
     isError,

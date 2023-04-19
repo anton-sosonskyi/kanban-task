@@ -2,6 +2,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { Issue } from "../../types/Issue";
 import { Columns } from "../../enums/Columns";
 import { saveToSessionStorage } from "../../utils/helpers";
+import { AddAction, ReoderAction } from "../../types/Actions";
 
 type BoardState = {
   name: string;
@@ -10,19 +11,6 @@ type BoardState = {
     inProgress: Issue[];
     done: Issue[];
   }
-}
-
-type ReoderAction = {
-  source: string,
-  destination: string,
-  sourceIndex: number,
-  destinationIndex: number,
-}
-
-type AddAction = {
-  source: string,
-  destination: string,
-  sourceIndex: number,
 }
 
 const initialState: BoardState = {

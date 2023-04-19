@@ -126,7 +126,7 @@ function App() {
 
       <Content
         style={{
-          minHeight: "100vh",
+          minHeight: "90vh",
           display: "flex",
           flexDirection: "column",
         }}
