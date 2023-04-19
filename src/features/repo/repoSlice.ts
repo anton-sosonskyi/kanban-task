@@ -54,7 +54,6 @@ const repoSlice = createSlice({
     });
 
     builder.addCase(loadRepoData.rejected, (state) => {
-      console.log('erorr')
       state.loaded = true;
       state.isError = true;
       state.isLoading = false;
