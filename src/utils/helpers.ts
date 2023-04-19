@@ -57,4 +57,4 @@ export function normalizeIssues(issues: Issue[]) {
   });
 
   return normilizedItems;
-};
+}
